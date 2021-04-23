@@ -59,7 +59,7 @@
 
 7. Plots are saved as png (for viewing) and svg (import to Corel Draw), output tables as csv files in .\data\analysis_output__\
 
-8. Move all plots and tables to some folder, use this structure:
+8. Move all plots and tables to some folder, use PREPARE_LV200_SUBFOLDER_STRUCTURE.py or manually create this structure:
 	\analysed_data\SCN1L\before (here goes data from first left SCN analyzed before any treatment)
 	\analysed_data\SCN1L\after (here goes data from first left SCN analyzed after treatment)
 	\analysed_data\SCN1R\before (here goes data from first right SCN analyzed before any treatment)
