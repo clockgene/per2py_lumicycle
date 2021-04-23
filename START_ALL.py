@@ -3,7 +3,7 @@
 # type >>> spyder
 # open this file in spyder or idle and run with F5
 # copy input signal and XY files to analysis folder
-# v.2021.04.23
+# v.2021.04.23b
 # changelog:  circular colorspace for phase plots 
 
 from __future__ import division
@@ -19,7 +19,7 @@ import Bioluminescence as blu
 import DecayingSinusoid as dsin
 import CellularRecording as cr
 import winsound
-import glob
+import glob, os
 import matplotlib as mpl
 import seaborn as sns
 import math
@@ -42,7 +42,7 @@ time_factor = 1
 treatment = 0
 
 # IN REAL HOURS or None (for whole dataset), plots and analyze only data to this timepoint, settings for end variable
-end_h = None
+end_h = 88
      
 #
 #
@@ -56,6 +56,9 @@ INPUT_EXT = '.csv'
 
 # for preanalyzed data from Lumi, use this and put signal and XY input files in analysis_output__ folder first
 timestamp = '_'    
+
+mydir = f'./{INPUT_DIR}analysis_output_{timestamp}/'
+os.makedirs(mydir, exist_ok = True)  #creates analysis_output folder in case it is missing
 
 # supress annoying UserWarning: tight_layout: falling back to Agg renderer
 def fxn():
