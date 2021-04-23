@@ -3,7 +3,7 @@
 # type >>> spyder
 # open this file in spyder or idle and run with F5
 # copy input signal and XY files to analysis folder
-# v.2021.03.18
+# v.2021.04.23
 # changelog:  circular colorspace for phase plots 
 
 from __future__ import division
@@ -42,7 +42,7 @@ time_factor = 1
 treatment = 0
 
 # IN REAL HOURS or None (for whole dataset), plots and analyze only data to this timepoint, settings for end variable
-end_h = 89
+end_h = None
      
 #
 #
@@ -287,7 +287,6 @@ def grayscale_cmap(cmap):
 cmap="YlGnBu"
 #cmap= grayscale_cmap(cmap)
 
-
 #mydir = INPUT_DIR+f'analysis_output_{timestamp}/'
 #mydir = f'{os.getcwd()}/{INPUT_DIR}analysis_output_{timestamp}/'
 mydir = f'./{INPUT_DIR}analysis_output_{timestamp}/'
@@ -340,7 +339,7 @@ bars = ax.bar(phase, amp, width=phase_sd, color=colorcode, bottom=0, alpha=0.8) 
 ax.set_theta_zero_location('N') # this puts CT=0 theta=0 to North - points upwards
 ax.set_theta_direction(-1)      #reverse direction of theta increases
 ax.set_thetagrids((0, 45, 90, 135, 180, 225, 270, 315), labels=('0', '3', '6', '9', '12', '15', '18', '21'), fontweight='bold', fontsize=12)  #set theta grids and labels, **kwargs for text properties
-ax.legend(bars, genes, fontsize=8, bbox_to_anchor=(1.1, 1.1))   # legend needs sequence of labels after object bars which contains sequence of bar plots 
+#ax.legend(bars, genes, fontsize=8, bbox_to_anchor=(1.1, 1.1))   # legend needs sequence of labels after object bars which contains sequence of bar plots 
 ax.set_xlabel("Circadian phase (h)", fontsize=12)
 #plt.title("Invidual phases plot", fontsize=14, fontstyle='italic')
 
@@ -361,7 +360,8 @@ plt.close()
 
 N_bins = 47                                                     # how much bins, 23 is for 1 bin per hour, depends on distribution
 #colorcode = plt.cm.nipy_spectral(np.linspace(0, 1, N_bins))      #gist_ncar, RdYlBu, Accent check>>> https://matplotlib.org/examples/color/colormaps_reference.html
-colorcode = sns.husl_palette(256)[0::int(round(len(colors) / N_bins, 0))]
+#colorcode = sns.husl_palette(256)[0::int(round(len(colors) / N_bins, 0))]
+colorcode = sns.husl_palette(256)[0::int(round(len(sns.husl_palette(256)) / N_bins, 0))]
 
 phase_hist, tick = np.histogram(phase, bins = N_bins, range=(0, 2*np.pi))           # need hist of phase in N bins from 0 to 23h
 theta = np.linspace(0.0, 2 * np.pi, N_bins, endpoint=False)     # this just creates number of bins spaced along circle, in radians for polar projection, use as x in histogram
