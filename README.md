@@ -62,9 +62,10 @@ For installation notes, see per2py_installation.txt.
 7. Plots are saved as png (for viewing) and svg (import to Corel Draw), output tables as csv files in .\data\analysis_output__\
 
 8. Move all plots and tables to some folder, use PREPARE_LV200_SUBFOLDER_STRUCTURE.py or manually create this structure:
-	\analysed_data\SCN1L\before (here goes data from first left SCN analyzed before any treatment)
-	\analysed_data\SCN1L\after (here goes data from first left SCN analyzed after treatment)
-	\analysed_data\SCN1R\before (here goes data from first right SCN analyzed before any treatment)
-	...
+	\analysed_data\SCN1L\before\ (here goes data from first left SCN analyzed before any treatment)
+	\analysed_data\SCN1L\after\ (here goes data from first left SCN analyzed after treatment)
+	\analysed_data\SCN1R\before\ (here goes data from first right SCN analyzed before any treatment)
+	...etc...
+	
 9. Combine all experiments that you want to analyze together in this way. Then you can use script  /plots_and_tables/Composite_Per2Py.py
-   to create nice composite figure with all plots together. Just set the total number of SCN folders and choose whcih type of graph do you want.
+   to create nice composite figure with all plots together. Just set the total number of SCN folders and choose which type of graph do you want.
