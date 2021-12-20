@@ -1,10 +1,6 @@
-# run anaconda prompt
-# type >>> conda activate per2py
-# type >>> spyder
-# open this file in spyder or idle and run with F5
 # copy input signal and XY files to analysis folder
-# v.2021.09.01
-# changelog:  Non-circadian analysis - decay curves 
+# v.2021.12.20
+# changelog:  adjust LS periodogram
 
 from __future__ import division
 
@@ -26,13 +22,17 @@ import math
 import warnings
 
 # for testing or noncircadian data such as degradation curves o for quick tests, set to False, otherwise True
-sine_fitting = False
+sine_fitting = True
+
+# adjust max (circ_high) and min (circ_low) period to be fitted, default is 30 and 18 h
+circ_high = 30
+circ_low = 18
 
 # for Lumicycle data set to False, for GridOverlay ImageJ data set to True
 grid_overlay = True         
 
-# How much plots of insidivual cells do you need? Set nth=1 for all, nth=10 for every 10th, ...
-nth = 20
+# How much plots of individual cells do you need? Set nth=1 for all, nth=10 for every 10th, ...
+nth = 10
 
 # input files from Lumi/Fiji rois/... need to be 2, id_signal and id_XY, from trackmate only 1 file.
 # ID = LUMI for Lumicycle, FIJI for manual roi, SCNGRID for auto GridOverlay rois.
@@ -41,12 +41,12 @@ INPUT_FILES   = ['SCNGRID']
 # if recording 1 frame/hour, set time_factor to 1; if 1 frame/0.25h, set to 1/4 (luminoskan); 1/6 for Lumicycle,...
 time_factor = 1
 
-# IN REAL HOURS, plots and analyze only data from this timepoint, settings for truncate_t variable - 
+# IN REAL HOURS, plot and analyze only data from this timepoint, settings for truncate_t variable - 
 treatment = 0
 
-# IN REAL HOURS or None (for whole dataset), plots and analyze only data to this timepoint, settings for end variable
+# IN REAL HOURS or None (for whole dataset), plot and analyze only data to this timepoint, settings for end variable
 end_h = None
-     
+  
 #
 #
 #                Code below this line should not be edited.
@@ -130,7 +130,7 @@ for files_dict in all_inputs:
                                     denoised_data, locations, truncate_t=treatment, end_h=end_h, time_factor=time_factor)
 
     # V. LS PERIODOGRAM TEST FOR RHYTHMICITY
-    lspers, pgram_data, circadian_peaks, lspeak_periods, rhythmic_or_not = cr.LS_pgram(final_times, final_data)
+    lspers, pgram_data, circadian_peaks, lspeak_periods, rhythmic_or_not = cr.LS_pgram(final_times, final_data, circ_low=circ_low, circ_high=circ_high, alpha=0.05)
 
     # VI. GET A SINUSOIDAL FIT TO EACH CELL
     # use final_times, final_data
