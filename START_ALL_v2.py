@@ -1,6 +1,6 @@
 # copy input signal and XY files to analysis folder
-# v.2021.12.20
-# changelog:  adjust LS periodogram
+# v.2021.12.22
+# changelog:  adjust LS periodogram, outliers filtered, savgol placeholder plot
 
 from __future__ import division
 
@@ -122,8 +122,10 @@ for files_dict in all_inputs:
     # try eigendecomposition, if fail due to inadequate number of values, use savgol
     try:
         denoised_times, denoised_data, eigenvalues = cr.eigensmooth(detrended_times, detrended_data, ev_threshold=0.05, dim=40)
+        savgol=False
     except IndexError:        
         denoised_times, denoised_data, eigenvalues = cr.savgolsmooth(detrended_times, detrended_data, time_factor=time_factor)
+        savgol=True
 
     # TRUNCATE INITIAL HOURS OR FROM/UNTIL TREATMENT/END  
     final_times, final_data, locations = cr.truncate_and_interpolate_before(denoised_times,
@@ -259,7 +261,7 @@ for files_dict in all_inputs:
                     detrended_times, detrended_data, eigenvalues,
                     final_times, final_data, rhythmic_or_not,
                     lspers, pgram_data, sine_times, sine_data, r2s,
-                    INPUT_DIR+f'analysis_output_{timestamp}/', data_type, trackid)
+                    INPUT_DIR+f'analysis_output_{timestamp}/', data_type, trackid, savgol)
     print(str(np.round(timer(),1))+"s")
 
     print("All data saved. Run terminated successfully for "+data_type+'.\n')
@@ -331,11 +333,25 @@ if sine_fitting == True:
     ####### Single Polar Phase Plot #########################################
     #########################################################################
     
-    # Use amplitude to filter out outliers or nans
-    #outlier_reindex = ~(np.isnan(reject_outliers(data[['Amplitude']])))['Amplitude']          # need series of bool values for indexing 
-    outlier_reindex = ~(np.isnan(data['Amplitude']))
-    
+    # Use amplitude to filter out nans
+    outlier_reindex = ~(np.isnan(data['Amplitude']))    
     data_filt = data[data.columns[:].tolist()][outlier_reindex]                                  # data w/o amp outliers
+    
+    # FILTER outliers by iqr filter: within 2.22 IQR (equiv. to z-score < 3)
+    #cols = data_filt.select_dtypes('number').columns   # pick only numeric columns
+    cols = ['Phase', 'Period', 'Amplitude', 'Decay', 'Rsq','Trend']    # pick hand selected columns
+    df_sub = data.loc[:, cols]
+    iqr = df_sub.quantile(0.75, numeric_only=False) - df_sub.quantile(0.25, numeric_only=False)
+    lim = np.abs((df_sub - df_sub.median()) / iqr) < 2.22
+    # replace outliers with nan
+    data_filt.loc[:, cols] = df_sub.where(lim, np.nan)   
+    # replace outlier-caused nans with median values    
+    data_filt['Phase'].fillna(data_filt['Phase'].median(), inplace=True)
+    data_filt['Period'].fillna(data_filt['Period'].median(), inplace=True)
+    data_filt['Amplitude'].fillna(data_filt['Amplitude'].median(), inplace=True)
+    data_filt['Decay'].fillna(data_filt['Decay'].median(), inplace=True)
+    data_filt['Rsq'].fillna(data_filt['Rsq'].median(), inplace=True)
+    data_filt['Trend'].fillna(data_filt['Trend'].median(), inplace=True)
     
     phaseseries = data_filt['Phase'].values.flatten()                                           # plot Phase
     phase_sdseries = 0.1/(data_filt['Rsq'].values.flatten())                                     # plot R2 related number as width
