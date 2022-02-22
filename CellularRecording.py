@@ -1,9 +1,8 @@
 '''
 File containing functions useful for data analysis.
-# v2021.01.26
-# Savgol filter as alternative to eigensmooth, alignment problem solved, Sin fit errors
+# v2022.02.22
+# plot 1x1 instead of EVals when Savgol filtering, mod def truncate_and_interpolate_before()
 '''
-
 
 from __future__ import division
 
@@ -18,14 +17,13 @@ import matplotlib.pyplot as plt
 import PlotOptions as plo
 import Bioluminescence as blu
 import DecayingSinusoid as dsin
-import datetime  as dt
 import warnings
 import matplotlib as mpl
+import scipy.signal
 
 def fxn():
     warnings.warn("tight_layout", UserWarning)
 
-#timestamp = dt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 timestamp = '_'
 
 def generate_filenames_dict(input_dir, input_file,
@@ -44,8 +42,7 @@ def generate_filenames_dict(input_dir, input_file,
     data_type = input_file
 
     #outputs - general
-    output_extension = '.csv'
-    #output_dir = input_dir+'analysis_output/'    
+    output_extension = '.csv' 
     output_dir = os.path.join(input_dir+f'analysis_output_{timestamp}/')
     try:
         os.mkdir(output_dir)
@@ -151,7 +148,7 @@ def import_data(raw_signal, raw_xy):
     timer = plo.laptimer()
 
     print("Importing data... time: ",)
-    header = np.genfromtxt(raw_signal, delimiter=',')[0, :]  # , dtype='unicode'to work with strings, but needs updating
+    header = np.genfromtxt(raw_signal, delimiter=',')[0, :]
     raw_times = np.genfromtxt(raw_signal, delimiter=',')[1:, 0]
     raw_data = np.genfromtxt(raw_signal, delimiter=',')[1:, 2:]
     locations = np.genfromtxt(raw_xy, delimiter=',')[2:, 3:]
@@ -164,7 +161,6 @@ def import_data(raw_signal, raw_xy):
     locations = delete_blank_columns(locations)
     print(str(np.round(timer(),1))+"s")
     return raw_times, raw_data, locations, header
-
 
 def import_data_grid(raw_signal, raw_xy):
     """
@@ -187,7 +183,6 @@ def import_data_grid(raw_signal, raw_xy):
     locations = delete_blank_columns(locations)
     print(str(np.round(timer(),1))+"s")
     return raw_times, raw_data, locations, header
-
 
 def delete_blank_columns(dataset):
     """
@@ -252,7 +247,6 @@ def alignment(original, denoised, d=40, dstart=0):
     else:
         return np.argmin(errs), 1
 
-
 def truncate_and_interpolate(times, data, locations, truncate_t=0,
                                 outlier_std=5):
     """
@@ -305,6 +299,8 @@ def truncate_and_interpolate(times, data, locations, truncate_t=0,
     return times, outdata, locations
 
 
+# def truncate_and_interpolate_before(times, data, locations, truncate_t=0, end=None,
+#                                 outlier_std=5):
 def truncate_and_interpolate_before(times, data, locations, truncate_t=0, end_h=None,
                                 outlier_std=5, time_factor=0.25):
     """
@@ -313,7 +309,6 @@ def truncate_and_interpolate_before(times, data, locations, truncate_t=0, end_h=
     Removes data after end.
     """
     # truncate the data
-    
     if end_h is None:
         end = None
     else:
@@ -361,8 +356,6 @@ def truncate_and_interpolate_before(times, data, locations, truncate_t=0, end_h=
 
     # should we trim the data here as well? we can just leave it
     return times, outdata, locations
-
-
 
 
 def hp_detrend(times, interpolated_data):
@@ -497,8 +490,8 @@ def eigensmooth(times, detrended_data, ev_threshold=0.05, dim=40, min_ev=2):
 
         # find alignment - for some reason the signal can be flipped.
         # this catches it
-        # truncate the first 24h during alignment  # Why? This was causing problems when fittng short traces.
-        align, atype = alignment(d1, denoised, d=dim, dstart=0)  # EDIT HERE, originally dstart=96. Maybe bypass this as with savgol?
+        # truncate the first 24h during alignment
+        align, atype = alignment(d1, denoised, d=dim, dstart=0) # EDIT HERE dstart=96 to 0, maybe bypass align altogether as with savgol?
 
         # fix alignment if leading nans
         nanshift=0
@@ -514,6 +507,7 @@ def eigensmooth(times, detrended_data, ev_threshold=0.05, dim=40, min_ev=2):
 
     print(str(np.round(timer(),1))+"s")
     return times, denoised_data, eigenvalues_list
+
 
 def savgolsmooth(times, detrended_data, time_factor):
     """
@@ -542,16 +536,13 @@ def savgolsmooth(times, detrended_data, time_factor):
         nanshift=0
         if np.isnan(d0[0]):
             nanshift=np.argmin(np.isnan(d0))
-        
-        # get the correctly-shaped denoised data,  does not work and messes up data!
-        #align, atype = alignment(d1, denoised, d=len(denoised), dstart=0)   # originally dstart=96,  d=dim
-        #denoised = denoised[align:align+len(d1)]*atype    # does not work and messes up data
 
         #align denoised data in matrix
         denoised_data[nanshift:len(denoised)+nanshift, data_idx] = denoised    # this correcly shifts data with leading nans
         
-    print(str(np.round(timer(),1))+"s")    
+    print(str(np.round(timer(),1))+"s")   
     return times, denoised_data, eigenvalues_list
+
 
 
 def sinusoidal_fitting(times, data, rhythmic_or_not, fit_times=None,
@@ -584,7 +575,8 @@ def sinusoidal_fitting(times, data, rhythmic_or_not, fit_times=None,
     pseudo_r2s = np.nan*np.ones(len(data[0]))
 
     for idx,idata in enumerate(data.T):
-        try:            
+        try:
+            
             # copy data for editing
             cell = np.copy(idata)
             model = dsin.DecayingSinusoid(times, cell)
@@ -626,12 +618,14 @@ def sinusoidal_fitting(times, data, rhythmic_or_not, fit_times=None,
     print(str(np.round(timer(),1))+"s")
     return fit_times, sine_data, phase_data, phases, periods, amplitudes, decays, pseudo_r2s, meaningful_phases
 
-def plot_result(cellidx, raw_times, raw_data, trendlines, detrended_times, detrended_data, eigenvalues, final_times, final_data, rhythmic_or_not, pers, pgram_data, sine_times, sine_data, r2s, output_dir, data_type, trackid):
+
+def plot_result(cellidx, raw_times, raw_data, trendlines, detrended_times, detrended_data, eigenvalues, final_times, final_data, rhythmic_or_not, pers, pgram_data, sine_times, sine_data, r2s, output_dir, data_type, trackid, savgol):
     """
     Plotting utility to plot ALL data at once. This plotting function is rather messy but functional.
     """
     plo.PlotOptions(ticks='in')
     fig = plt.figure(figsize=(4,7))
+    plt.figure(figsize=(4,7))
     gs = gridspec.GridSpec(4,2)
 
     ax = plt.subplot(gs[0,0])
@@ -657,10 +651,14 @@ def plot_result(cellidx, raw_times, raw_data, trendlines, detrended_times, detre
     cx.axhline(0,color='k', ls=':')
     cx.set_xlim([0,np.max(raw_times)])
     cx.set_ylabel('Detrended (AU)')
-
-    dx.plot(eigenvalues[cellidx], marker='o',color='gold')
-    dx.axhline(0.05, color='h', ls='--', label='cutoff')
-    dx.set_ylabel('EVal (% of total)')
+    
+    if savgol==True:
+        dx.plot(1, 1, marker='o',color='gold')
+        dx.set_ylabel('EVals missing')
+    else:
+        dx.plot(eigenvalues[cellidx], marker='o',color='gold')
+        dx.axhline(0.05, color='h', ls='--', label='cutoff')
+        dx.set_ylabel('EVal (% of total)')
 
     ex.plot(final_times, final_data[:,cellidx],'h')
     ex.axhline(0,color='k', ls=':')
@@ -693,12 +691,16 @@ def plot_result(cellidx, raw_times, raw_data, trendlines, detrended_times, detre
         plt.tight_layout(**plo.layout_pad)
         #plt.savefig(output_dir+data_type+'_cell'+str(cellidx)+'.png', dpi=300) #savename is index
         plt.savefig(output_dir+data_type+'_cell'+str(trackid)+'.png', dpi=300)  #savename is track id
+        
         #svg format for corel draw
         mpl.use('svg') 
         new_rc_params = {"font.family": 'Arial', "text.usetex": False, "svg.fonttype": 'none'}  
         mpl.rcParams.update(new_rc_params)
         plt.rcParams['svg.fonttype'] = 'none' 
-        plt.savefig(output_dir+data_type+'_cell'+str(trackid)+'.svg', format = 'svg')               
+        plt.savefig(output_dir+data_type+'_cell'+str(trackid)+'.svg', format = 'svg')  
         
         plt.close()
         plt.clf()
+        
+    plt.close()
+    plt.clf()
