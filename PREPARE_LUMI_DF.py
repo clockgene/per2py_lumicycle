@@ -5,6 +5,10 @@ import datetime  as dt
 from tkinter import filedialog
 from tkinter import *
 
+"""
+Concatenate txt/csv files exported from Lumicycle Analysis by CTRL+SHIFT+T.
+"""
+
 
 # What is the delimiter format of the csv files? Comma or Semicolon?
 delimiter = ','
