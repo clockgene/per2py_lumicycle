@@ -9,7 +9,7 @@ from tkinter import *
 Concatenate txt/csv files exported from Lumicycle Analysis by CTRL+SHIFT+T.
 """
 
-# Which column do you want to extract? Depends on Lumicycle Analysis version: 4 for v.2.6+, 3 for older versions. Plz
+# Which column do you want to extract? Depends on Lumicycle Analysis version: 4 for v.2.6+, 3 for older versions. Plz check!
 extract_column = 4
 
 # Rename columns with traces to either original file name (1a_Raw,..., True) or to numbers so it works in per2py (1,2,..., False)
