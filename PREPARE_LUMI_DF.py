@@ -9,8 +9,8 @@ from tkinter import *
 Concatenate txt/csv files exported from Lumicycle Analysis by CTRL+SHIFT+T.
 """
 
-# Which column do you want to extract? Depends on Lumicycle Analysis version: 4 for v.2.6+, 3 for older versions. Plz check!
-extract_column = 4
+# Which column do you want to extract? Depends on Lumicycle Analysis version: 5 for v.2.6+, 4 for older versions. Plz check!
+extract_column = 5
 
 # Rename columns with traces to either original file name (1a_Raw,..., True) or to numbers so it works in per2py (1,2,..., False)
 orig_filenames = True
@@ -63,11 +63,11 @@ list_df = []
 df = pd.DataFrame()
 counter1 = 1
 for file in filelist:
-    df2 = pd.read_csv(path+file, delimiter = delimiter, skiprows=[0, 1, 2], header=None, usecols=[extract_column + 1]) # CHOOSE , OR ; as delimiter, col 4 contains luminescence data
+    df2 = pd.read_csv(path+file, delimiter = delimiter, skiprows=[0, 1, 2], header=None, usecols=[extract_column - 1]) # CHOOSE , OR ; as delimiter, col 4 contains luminescence data
     if orig_filenames == True:
-        df2.rename({4 : f'''{file.rsplit('.', 1)[0]}'''}, axis='columns', inplace=True)             #rename columns, using stackhack to extract filenam w/o ext
+        df2.rename({extract_column - 1 : f'''{file.rsplit('.', 1)[0]}'''}, axis='columns', inplace=True)             #rename columns, using stackhack to extract filenam w/o ext
     else:
-        df2.rename({4 : counter1}, axis='columns', inplace=True)     #rename columns to simple integers, for per2py to work w/o tinkering
+        df2.rename({extract_column - 1 : counter1}, axis='columns', inplace=True)     #rename columns to simple integers, for per2py to work w/o tinkering
     list_df.append(df2)
     counter1 += 1
 df = pd.concat(list_df, axis = 1)                                                               #add all traces to 1 dataframe 
