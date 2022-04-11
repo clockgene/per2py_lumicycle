@@ -1,6 +1,6 @@
 # copy input signal and XY files to analysis folder
-# v.2021.12.22
-# changelog:  adjust LS periodogram, outliers filtered, savgol placeholder plot
+# v.2022.04.11
+# changelog:  rigid Rsq filter
 
 from __future__ import division
 
@@ -353,8 +353,9 @@ if sine_fitting == True:
     data_filt['Rsq'].fillna(data_filt['Rsq'].median(), inplace=True)
     data_filt['Trend'].fillna(data_filt['Trend'].median(), inplace=True)
     
-    phaseseries = data_filt['Phase'].values.flatten()                                           # plot Phase
-    phase_sdseries = 0.1/(data_filt['Rsq'].values.flatten())                                     # plot R2 related number as width
+    phaseseries = data_filt['Phase'].values.flatten()           # plot Phase
+    data_filt.loc[data_filt['Rsq'] < 0.1, 'Rsq'] = 0.1          # filter out too low R values to avoid memory errors                                        
+    phase_sdseries = 0.1/(data_filt['Rsq'].values.flatten())                     # plot R2 related number as width
     
     # NAME
     genes = data_filt['Unnamed: 0'].values.flatten().astype(int)                      # plot profile name as color
