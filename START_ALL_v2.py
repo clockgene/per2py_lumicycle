@@ -1,6 +1,6 @@
 # copy input signal and XY files to analysis folder
-# v.2022.04.11
-# changelog:  rigid Rsq filter
+# v.2022.04.22
+# changelog:  Phase is not filtered for outliers
 
 from __future__ import division
 
@@ -45,7 +45,7 @@ time_factor = 1
 treatment = 0
 
 # IN REAL HOURS or None (for whole dataset), plot and analyze only data to this timepoint, settings for end variable
-end_h = None
+end_h = 74
   
 #
 #
@@ -305,12 +305,13 @@ def grayscale_cmap(cmap):
     return LinearSegmentedColormap.from_list(cmap.name + "_gray", colors, cmap.N)
 
 # CHOOSE color map
-#cmap="viridis"
+# cmap="viridis"
 cmap="YlGnBu"
-#cmap= grayscale_cmap(cmap)
+# cmap= grayscale_cmap(cmap)
 
-#mydir = INPUT_DIR+f'analysis_output_{timestamp}/'
-#mydir = f'{os.getcwd()}/{INPUT_DIR}analysis_output_{timestamp}/'
+# mydir = INPUT_DIR+f'analysis_output_{timestamp}/'
+# mydir = f'{os.getcwd()}/{INPUT_DIR}analysis_output_{timestamp}/'
+# When running only Final Plots part of script, be careful about current dir, run os.chdir() when necessary
 mydir = f'./{INPUT_DIR}analysis_output_{timestamp}/'
 
 # LOAD DATA FOR PLOTTING FROM ANALYSIS FOLDER
@@ -339,14 +340,14 @@ if sine_fitting == True:
     
     # FILTER outliers by iqr filter: within 2.22 IQR (equiv. to z-score < 3)
     #cols = data_filt.select_dtypes('number').columns   # pick only numeric columns
-    cols = ['Phase', 'Period', 'Amplitude', 'Decay', 'Rsq','Trend']    # pick hand selected columns
+    cols = ['Period', 'Amplitude', 'Decay', 'Rsq','Trend']    # pick hand selected columns, except 'Phase', 
     df_sub = data.loc[:, cols]
     iqr = df_sub.quantile(0.75, numeric_only=False) - df_sub.quantile(0.25, numeric_only=False)
     lim = np.abs((df_sub - df_sub.median()) / iqr) < 2.22
     # replace outliers with nan
     data_filt.loc[:, cols] = df_sub.where(lim, np.nan)   
     # replace outlier-caused nans with median values    
-    data_filt['Phase'].fillna(data_filt['Phase'].median(), inplace=True)
+    # data_filt['Phase'].fillna(data_filt['Phase'].median(), inplace=True)
     data_filt['Period'].fillna(data_filt['Period'].median(), inplace=True)
     data_filt['Amplitude'].fillna(data_filt['Amplitude'].median(), inplace=True)
     data_filt['Decay'].fillna(data_filt['Decay'].median(), inplace=True)
