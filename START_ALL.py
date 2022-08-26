@@ -1,6 +1,6 @@
 # copy input signal and XY files to analysis folder
-# v.2022.08.24
-# changelog:  Added Rayleigh test for uniformity of circular data
+# v.2022.08.26
+# changelog:  Added Rayleigh test for uniformity of circular data, editable N_bins
 
 from __future__ import division
 
@@ -34,6 +34,9 @@ grid_overlay = True
 # How much plots of individual cells do you need? Set nth=1 for all, nth=10 for every 10th, ...
 nth = 100
 
+# How many bins in circular phase histogram? Used to be 47, but for noisy data, 12-24 looks better
+N_bins = 47
+
 # input files from Lumi/Fiji rois/... need to be 2, id_signal and id_XY, from trackmate only 1 file.
 # ID = LUMI for Lumicycle, FIJI for manual roi, SCNGRID for auto GridOverlay rois.
 INPUT_FILES   = ['SCNGRID']
@@ -45,7 +48,7 @@ time_factor = 1
 treatment = 0
 
 # IN REAL HOURS or None (for whole dataset), plot and analyze only data to this timepoint, settings for end variable
-end_h = 144
+end_h = None
   
 #
 #
@@ -401,7 +404,7 @@ if sine_fitting == True:
     ####### Single Polar Histogram of frequency of phases with Rayleigh vector#####################
     ###############################################################################################
     
-    N_bins = 47                                                     # how much bins, 23 is for 1 bin per hour, depends on distribution
+    N_bins = N_bins                                                     # how much bins, 23 is for 1 bin per hour, depends on distribution
     #colorcode = plt.cm.nipy_spectral(np.linspace(0, 1, N_bins))      #gist_ncar, RdYlBu, Accent check>>> https://matplotlib.org/examples/color/colormaps_reference.html
     #colorcode = sns.husl_palette(256)[0::int(round(len(colors) / N_bins, 0))]
     colorcode = sns.husl_palette(256)[0::int(round(len(sns.husl_palette(256)) / N_bins, 0))]
@@ -444,7 +447,7 @@ if sine_fitting == True:
     #add arrow and test rounded pvalue
     axh.annotate('',xy=(v_angle, v_length), xytext=(v_angle,0), xycoords='data', arrowprops=dict(width=1, color='black'))
     axh.annotate(f'p={np.format_float_scientific(pval_Rt, precision=4)}', xy=(v_angle, v_length))
-
+    
     ### To save as vector svg with fonts editable in Corel ###
     plt.savefig(f'{mydir}Histogram_Phase.svg', format = 'svg', bbox_inches = 'tight') #if using rasterized = True to reduce size, set-> dpi = 1000
     ### To save as bitmap png for easy viewing ###
@@ -484,7 +487,7 @@ if sine_fitting == True:
         #plt.legend(title='Sex')
         plt.xlabel(x_lab)
         plt.ylabel(y_lab)
-        plt.text(x_coord, y_coord, f'n = ' + str(data_filt_per[y].size - data_filt_per[y].isnull().sum()) + '\nmean = ' + str(round(data_filt_per[y].mean(), 3)) + ' ± ' + str(round(data_filt_per[y].sem(), 3)) + 'h')
+        plt.text(x_coord, y_coord, 'n = ' + str(data_filt_per[y].size - data_filt_per[y].isnull().sum()) + '\nmean = ' + str(round(data_filt_per[y].mean(), 3)) + ' ± ' + str(round(data_filt_per[y].sem(), 3)) + 'h')
         #loc = plticker.MultipleLocator(base=4.0) # this locator puts ticks at regular intervals
         #allplot.xaxis.set_major_locator(loc)
         
@@ -516,7 +519,7 @@ if sine_fitting == True:
         #plt.legend(title='Sex')
         plt.xlabel(x_lab)
         plt.ylabel(y_lab)
-        plt.text(x_coord, y_coord, f'n = ' + str(data_filt_per[y].size - data_filt_per[y].isnull().sum()) + '\nmean = ' + str(round(data_filt_per[y].mean(), 3)) + ' ± ' + str(round(data_filt_per[y].sem(), 3)) + 'h')
+        plt.text(x_coord, y_coord, 'n = ' + str(data_filt_per[y].size - data_filt_per[y].isnull().sum()) + '\nmean = ' + str(round(data_filt_per[y].mean(), 3)) + ' ± ' + str(round(data_filt_per[y].sem(), 3)) + 'h')
         #loc = plticker.MultipleLocator(base=4.0) # this locator puts ticks at regular intervals
         #allplot.xaxis.set_major_locator(loc)
         
