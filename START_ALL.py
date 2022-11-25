@@ -21,7 +21,7 @@ import seaborn as sns
 import math
 import warnings
 
-# for testing or noncircadian data such as degradation curves o for quick tests, set to False, otherwise True
+# for quick testing or noncircadian data such as degradation curves, set to False, otherwise True
 sine_fitting = True
 
 # adjust max (circ_high) and min (circ_low) period to be fitted, default is 30 and 18 h
@@ -32,10 +32,10 @@ circ_low = 18
 grid_overlay = True         
 
 # How much plots of individual cells do you need? Set nth=1 for all, nth=10 for every 10th, ...
-nth = 100
+nth = 10
 
 # How many bins in circular phase histogram? Used to be 47, but for noisy data, 12-24 looks better
-N_bins = 47
+N_bins = 24
 
 # input files from Lumi/Fiji rois/... need to be 2, id_signal and id_XY, from trackmate only 1 file.
 # ID = LUMI for Lumicycle, FIJI for manual roi, SCNGRID for auto GridOverlay rois.
