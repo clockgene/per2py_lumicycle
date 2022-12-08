@@ -1,6 +1,6 @@
 # copy input signal and XY files to analysis folder
-# v.2022.08.26
-# changelog:  Added Rayleigh test for uniformity of circular data, editable N_bins
+# v.2022.12.08
+# changelog:  Added Rayleigh test for uniformity of circular data, editable N_bins, editable max_degree
 
 from __future__ import division
 
@@ -23,6 +23,9 @@ import warnings
 
 # for quick testing or noncircadian data such as degradation curves, set to False, otherwise True
 sine_fitting = True
+
+# default is 6, lower values speed up fitting DecayingSinusoid by reducing overfitting, experimental !
+max_degree = 6
 
 # adjust max (circ_high) and min (circ_low) period to be fitted, default is 30 and 18 h
 circ_high = 35
@@ -142,7 +145,7 @@ for files_dict in all_inputs:
     # use forcing to ensure period within 1h of LS peak period
     if sine_fitting == True:
         sine_times, sine_data, phase_data, refphases, periods, amplitudes, decays, r2s, meaningful_phases =\
-             cr.sinusoidal_fitting(final_times, final_data, rhythmic_or_not,
+             cr.sinusoidal_fitting(final_times, final_data, rhythmic_or_not, max_degree=max_degree,
                                    fit_times=raw_times, forced_periods=lspeak_periods)
         # get metrics
         circadian_metrics = np.vstack([rhythmic_or_not, circadian_peaks, refphases, periods, amplitudes,
