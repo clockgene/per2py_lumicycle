@@ -6,7 +6,8 @@ from tkinter import filedialog
 from tkinter import *
 
 """
-Concatenate txt/csv files exported from Lumicycle Analysis by CTRL+SHIFT+T.
+Concatenate txt/csv files exported from Lumicycle Analysis by CTRL+SHIFT+T. Print mesors.
+v.2023.02.09
 """
 
 # Which column do you want to extract? Depends on Lumicycle Analysis version: 5 for v.2.6+, 4 for older versions. Plz check!
@@ -74,6 +75,13 @@ df = pd.concat(list_df, axis = 1)                                               
 df.insert(0, 'TimesH', np.linspace(0, len(df.index)/6, num=len(df.index)))                  #create time column in hours, 10min/row
 df.insert(1, 'Frame', df['TimesH']/1)  # may change this later to days or smthng
 print(df.head())
+
+print('Displaying the average/mesor/trend of extracted traces from time 0:-1,')
+print('copy and paste to SUPER sheet:')
+print()
+mean_list = df.iloc[:-1, 2:].mean() #.mode().values
+for i in mean_list:
+    print(i)
 
 # Save formated df as ID_signal.csv
 df.to_csv(f'{path}{ID}_signal.csv', index=False)
