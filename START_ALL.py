@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 # copy input signal and XY files to analysis folder
-# v.2022.12.08
-# changelog:  Added Rayleigh test for uniformity of circular data, editable N_bins, editable max_degree
+# v.2023.06.08
+# changelog:  added raw_times * time_factor
 
 from __future__ import division
 
@@ -25,11 +26,11 @@ import warnings
 sine_fitting = True
 
 # default is 6, lower values speed up fitting DecayingSinusoid by reducing overfitting, experimental !
-max_degree = 6
+max_degree = 3
 
 # adjust max (circ_high) and min (circ_low) period to be fitted, default is 30 and 18 h
-circ_high = 35
-circ_low = 18
+circ_high = 45
+circ_low = 15
 
 # for Lumicycle data set to False, for GridOverlay ImageJ data set to True
 grid_overlay = True         
@@ -45,7 +46,7 @@ N_bins = 24
 INPUT_FILES   = ['SCNGRID']
 
 # if recording 1 frame/hour, set time_factor to 1; if 1 frame/0.25h, set to 1/4 (luminoskan); 1/6 for Lumicycle,...
-time_factor = 1
+time_factor = 2
 
 # IN REAL HOURS, plot and analyze only data from this timepoint, settings for truncate_t variable - 
 treatment = 0
@@ -113,6 +114,8 @@ for files_dict in all_inputs:
         
     #raw_times, raw_data, locations, header = cr.import_data(raw_signal, raw_xy)
     time_factor = time_factor
+    # if time_factor > 1:
+    raw_times = raw_times * time_factor
 
     # II. INTERPOLATE MISSING PARTS
     # truncate 0 h and interpolate
