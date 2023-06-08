@@ -302,7 +302,7 @@ def truncate_and_interpolate(times, data, locations, truncate_t=0,
 # def truncate_and_interpolate_before(times, data, locations, truncate_t=0, end=None,
 #                                 outlier_std=5):
 def truncate_and_interpolate_before(times, data, locations, truncate_t=0, end_h=None,
-                                outlier_std=5, time_factor=0.25):
+                                outlier_std=5, time_factor=1):
     """
     Removes the first "truncate_t" h artifact and interpolates
     any missing values and rejects outliers.
